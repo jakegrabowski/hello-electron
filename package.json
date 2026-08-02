@@ -9,7 +9,11 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
   },
   "license": "MIT",
   "dependencies": {

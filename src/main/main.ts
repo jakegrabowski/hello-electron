@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { READ_DIR_CHANNEL } from '../shared/ipc-channels';
+import { sortDirEntries } from '../shared/dir';
 import type { DirListing } from '../shared/api';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -38,18 +39,15 @@ const createWindow = (): void => {
 
 const readHomeDir = async (): Promise<DirListing> => {
   const dir = os.homedir();
-  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
   return {
     path: dir,
-    entries: entries
-      .map((entry) => ({ name: entry.name, isDirectory: entry.isDirectory() }))
-      .sort((a, b) =>
-        a.isDirectory === b.isDirectory
-          ? a.name.localeCompare(b.name)
-          : a.isDirectory
-            ? -1
-            : 1,
-      ),
+    entries: sortDirEntries(
+      dirents.map((entry) => ({
+        name: entry.name,
+        isDirectory: entry.isDirectory(),
+      })),
+    ),
   };
 };
 
