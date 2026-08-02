@@ -72,12 +72,23 @@ The gate for every change: `npm run typecheck && npm run lint && npm test`.
 ## 6. Package / build installers
 
 ```bash
-npm run package     # bundle the app into out/ (no installers)
-npm run make        # build native installers for the current OS
+npm run package                       # bundle the app into out/ (no installers)
+npm run make                          # build installer(s) for the current OS
+npm run make -- --platform=linux      # Linux .deb (any host)
+npm run make -- --platform=darwin     # macOS .app/.zip, unsigned (any host)
+npm run make -- --platform=win32      # Windows .exe (needs a Windows host)
 ```
 
-See `docs/architecture.md` §5 for which installer each OS produces and which
-hosts can build which artifacts.
+What builds where (see `docs/architecture.md` §5):
+
+| Target  | Artifact                                  | Build host                |
+| ------- | ----------------------------------------- | ------------------------- |
+| Linux   | `out/make/deb/x64/*.deb`                  | Any                       |
+| macOS   | `out/make/zip/darwin/x64/*.zip` (unsigned)| Any (needs the `zip` CLI) |
+| Windows | `out/make/squirrel.windows/x64/*.exe`     | Windows only              |
+
+> Building the macOS `.zip` on Linux needs the `zip` utility:
+> `sudo apt-get install -y zip`.
 
 ## Notes
 

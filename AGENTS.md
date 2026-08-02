@@ -76,13 +76,13 @@ electron-hello/
 │  ├─ preload/       # Preload: the ONLY bridge between main and renderer
 │  │  └─ preload.ts
 │  ├─ renderer/      # Renderer (browser side): UI
-│  │  ├─ index.html
 │  │  ├─ renderer.ts
 │  │  └─ styles.css
 │  ├─ shared/        # Imported everywhere (IPC channels, RPC types/protocol)
 │  └─ wsl-server/    # Helper server that runs INSIDE WSL2 (separate Node build)
 │     └─ index.ts
 ├─ forge.config.ts   # Electron Forge config (packaging targets per OS)
+├─ index.html        # Renderer entry (Vite root — must stay at project root)
 ├─ tsconfig.json
 ├─ vite.*.config.ts  # main / preload / renderer / wsl-server Vite configs
 ├─ package.json

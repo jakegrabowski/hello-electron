@@ -52,15 +52,22 @@ Notes: ESLint 9 (flat config) + typescript-eslint v8 + Prettier + Vitest.
 re-pinned to 5.9.3 (ADR-013, supersedes ADR-012's TS 7). Vitest emits a cosmetic
 Vite "CJS Node API deprecated" warning — ignore.
 
-## M3 — Cross-platform packaging
+## M3 — Cross-platform packaging ☑
 Produce installers per ADR-006 / ADR-007 / ADR-008.
 
 Done when:
-- ☐ `forge.config.ts` declares makers: `maker-squirrel` (Win `.exe`),
+- ☑ `forge.config.ts` declares makers: `maker-squirrel` (Win `.exe`),
   `maker-zip` (macOS `.app`/`.zip`, unsigned), `maker-deb` (Linux `.deb`).
-- ☐ `npm run make` produces a runnable artifact for the host OS.
-- ☐ Docs note which artifacts can be built on which host (Win installer needs
+- ☑ `npm run make` produces a runnable artifact for the host OS.
+- ☑ Docs note which artifacts can be built on which host (Win installer needs
   Windows; macOS `.zip` + Linux `.deb` build on any host).
+
+Notes: built Linux `.deb` (92 MB) and macOS `.zip` (117 MB, unsigned) on the
+WSL2/Linux host — no Mac needed. `packagerConfig.executableName: 'hello-electron'`
+(makers expect a no-space binary name). macOS `.zip` needs the `zip` CLI
+(`apt-get install zip`). **Gotcha fixed:** `index.html` must live at the project
+root (Vite default root) — setting `root: 'src/renderer'` broke the packaged
+renderer output. Windows `.exe` still requires a Windows host (or CI).
 
 ## M4 — WSL2 bridge (Windows-only headline feature)
 VS Code-style: Windows Electron UI + helper server inside WSL2 over loopback.
