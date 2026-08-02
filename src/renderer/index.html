@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello, Electron!</title>
+  </head>
+  <body>
+    <h1>Hello, Electron!</h1>
+    <p>Cross-platform desktop app &mdash; Electron + TypeScript.</p>
+
+    <div class="toolbar">
+      <button id="read-dir" type="button">Read directory</button>
+      <span id="status">Source: local filesystem</span>
+    </div>
+    <ul id="listing"></ul>
+
+    <script type="module" src="./renderer.ts"></script>
+  </body>
+</html>
