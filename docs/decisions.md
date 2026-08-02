@@ -96,7 +96,7 @@ protocol in `src/shared/`, and lifecycle management (spawn / health-check /
 shutdown). More moving parts, but the proven, scalable pattern. Transport
 details (e.g. `ws` vs raw TCP, JSON-RPC library) are decided when M4 is built.
 
-## ADR-012 — TypeScript 7.x + modern strict tsconfig (overrides Forge template) (Accepted)
+## ADR-012 — TypeScript 7.x + modern strict tsconfig (overrides Forge template) (Superseded by ADR-013)
 **Context.** The official `@electron-forge/template-vite-typescript` pins
 TypeScript `~4.5.4`. That version cannot parse modern `@types/node` (syntax
 errors TS1005/TS1109 in `node_modules`), and TS 7 later removed the template's
@@ -107,3 +107,17 @@ errors TS1005/TS1109 in `node_modules`), and TS 7 later removed the template's
 types via `src/vite-env.d.ts` so `.css` imports typecheck.
 **Consequences.** `npm run typecheck` is clean. ESLint/@typescript-eslint will
 be added at M2 at versions that support TS 7. Keep the TS version current.
+
+## ADR-013 — TypeScript 5.9.3 (supersedes ADR-012's TS 7.x) (Accepted)
+**Context.** ADR-012 pinned TypeScript `^7.0.2`. But `typescript-eslint` (the
+standard ESLint integration, added at M2) peer-requires
+`typescript >=4.8.4 <6.1.0` — TS 7 is not yet supported by the ESLint
+ecosystem, which made `npm install` fail with an unrecoverable `ERESOLVE`.
+**Decision.** Pin TypeScript `^5.9.3` (latest 5.x) instead of 7.x. TS 5.9.3
+still solves the original problem in ADR-012 (it parses modern `@types/node`;
+only the template's `~4.5.4` couldn't) and supports the same strict modern
+tsconfig (`moduleResolution: "bundler"`, `strict: true`). The rest of ADR-012
+(the tsconfig shape, `vite/client` types) is unchanged.
+**Consequences.** `npm install` resolves cleanly without `--legacy-peer-deps`,
+and ESLint/typescript-eslint works. Revisit once the ESLint ecosystem supports
+TS 7+.

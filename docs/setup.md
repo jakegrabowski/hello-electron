@@ -63,9 +63,11 @@ DevTools opens automatically while running unpackaged.
 
 ```bash
 npm run typecheck   # tsc --noEmit — the hard gate, always green
+npm run lint        # ESLint
+npm test            # Vitest
 ```
 
-(Lint and tests arrive at M2: `npm run lint`, `npm test`.)
+The gate for every change: `npm run typecheck && npm run lint && npm test`.
 
 ## 6. Package / build installers
 
@@ -79,8 +81,9 @@ hosts can build which artifacts.
 
 ## Notes
 
-- **TypeScript** is pinned to 7.x — not the Forge template's `~4.5.4`, which
-  can't parse modern `@types/node`. See ADR-012.
+- **TypeScript** is pinned to 5.x (5.9.3) — not the Forge template's `~4.5.4`
+  (which can't parse modern `@types/node`), nor 7.x (the ESLint ecosystem
+  doesn't support it yet). See ADR-013.
 - Under **WSLg**, Chromium prints a cosmetic
   `ContextResult::kFatalFailure: WebGL1 blocklisted` warning. Ignore it unless
   the app needs WebGL.

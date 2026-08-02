@@ -14,8 +14,8 @@ Done when:
 - ☑ `npm run typecheck` is configured and passes.
 - ☑ Repository matches the layout in `AGENTS.md`.
 
-Notes: TypeScript pinned to 7.x + a modern strict tsconfig (ADR-012). The
-Linux/WSL2 dev host needs `libnss3 libnspr4 libasound2t64` installed (see
+Notes: TypeScript pinned to 5.x (5.9.3) + a modern strict tsconfig (ADR-013).
+The Linux/WSL2 dev host needs `libnss3 libnspr4 libasound2t64` installed (see
 `AGENTS.md`). `src/wsl-server/` and `src/main/wsl/` arrive at M4.
 
 ## M1 — Hello Electron + readDir feature ☑
@@ -38,14 +38,19 @@ Notes: verified end-to-end on WSL2/Linux — the button lists `/home/<user>`.
 The `DirListing` contract (`{ path, entries[] }`) is what M4's WSL handler will
 also return, so the renderer stays unchanged when the source swaps.
 
-## M2 — Quality gates
+## M2 — Quality gates ☑
 Add linting, formatting, tests.
 
 Done when:
-- ☐ ESLint + Prettier configured; `npm run lint` passes.
-- ☐ Vitest configured; `npm test` passes with at least one meaningful test.
-- ☐ The verify triple (`typecheck && lint && test`) is the gate for every
+- ☑ ESLint + Prettier configured; `npm run lint` passes.
+- ☑ Vitest configured; `npm test` passes with at least one meaningful test.
+- ☑ The verify triple (`typecheck && lint && test`) is the gate for every
   change.
+
+Notes: ESLint 9 (flat config) + typescript-eslint v8 + Prettier + Vitest.
+`src/shared/dir.ts` (`sortDirEntries`) is covered by `dir.test.ts`. TypeScript
+re-pinned to 5.9.3 (ADR-013, supersedes ADR-012's TS 7). Vitest emits a cosmetic
+Vite "CJS Node API deprecated" warning — ignore.
 
 ## M3 — Cross-platform packaging
 Produce installers per ADR-006 / ADR-007 / ADR-008.

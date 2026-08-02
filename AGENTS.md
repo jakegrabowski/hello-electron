@@ -141,15 +141,16 @@ electron-hello/
 npm install            # install deps
 npm start              # run the app in dev (forge + vite)
 npm run typecheck      # tsc --noEmit
-npm run lint           # ESLint (after M2)
-npm test               # vitest (after M2)
+npm run lint           # ESLint
+npm run format         # Prettier (write)
+npm test               # Vitest
 npm run package        # bundle the app, no installers
 npm run make           # build native installers for the current OS
 ```
 
 The **verify-before-done** triple for any code change:
 `npm run typecheck && npm run lint && npm test`
-(skip the steps not yet added; never skip typecheck).
+(all three must pass; typecheck is never skipped).
 
 ## Dev environment (Linux / WSL2 host)
 
@@ -164,8 +165,9 @@ Full step-by-step setup (including the required system libraries):
 - **WebGL is blocklisted under WSLg** — Chromium prints a non-fatal
   `ContextResult::kFatalFailure: WebGL1 blocklisted` warning. Cosmetic; ignore
   unless the app needs WebGL.
-- **TypeScript** is pinned to 7.x, not the Forge template's `~4.5.4` (which
-  can't parse modern `@types/node`). See ADR-012.
+- **TypeScript** is pinned to 5.x (5.9.3) — not the Forge template's `~4.5.4`
+  (which can't parse modern `@types/node`), nor 7.x (the ESLint ecosystem
+  doesn't support it yet). See ADR-013.
 - Testing the Windows build's WSL bridge (M4) requires running the app as a
   Windows process — see `docs/architecture.md` §7.
 
