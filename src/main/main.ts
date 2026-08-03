@@ -6,6 +6,7 @@ import started from 'electron-squirrel-startup';
 import { READ_DIR_CHANNEL } from '../shared/ipc-channels';
 import { sortDirEntries } from '../shared/dir';
 import type { DirListing } from '../shared/api';
+import type { WslClient } from './wsl/wsl-client';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -51,7 +52,26 @@ const readHomeDir = async (): Promise<DirListing> => {
   };
 };
 
-ipcMain.handle(READ_DIR_CHANNEL, readHomeDir);
+let wslClient: WslClient | null = null;
+
+ipcMain.handle(READ_DIR_CHANNEL, async () => {
+  // Windows + WSL2: read the WSL $HOME via the helper server. Everything else:
+  // read the local home directory directly. The WSL module is imported lazily,
+  // so it is never loaded on macOS/Linux. ⚠️ The WSL path is runtime-verified
+  // on Windows — see src/main/wsl/wsl-client.ts.
+  if (process.platform === 'win32') {
+    if (!wslClient) {
+      const { WslClient: WslClientImpl } = await import('./wsl/wsl-client');
+      wslClient = await WslClientImpl.start();
+    }
+    return wslClient.listDir();
+  }
+  return readHomeDir();
+});
+
+app.on('before-quit', () => {
+  wslClient?.stop();
+});
 
 app.whenReady().then(createWindow);
 

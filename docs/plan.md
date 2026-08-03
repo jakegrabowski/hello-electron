@@ -81,11 +81,23 @@ Done when:
   `/home/<user>` over loopback; `wsl-server:start`/`stop` scripts work.)*
 - ☐ `src/main/wsl/` exists (Windows-only, `process.platform === 'win32'`
   guard): spawns the server via `wsl.exe`, connects over localhost, exposes an
-  RPC client. *(Stage B — code now, runtime-tested on Windows.)*
+  RPC client. *(Stage B — coded + typechecks/lints on Linux; runtime test
+  pending Windows.)*
 - ☐ End-to-end round-trip on Windows: renderer → preload → main → WSL server
   → back; UI lists the WSL `$HOME` directory.
 - ☐ macOS/Linux builds still start and run (the WSL module is not imported).
 - ☑ `npm run typecheck` clean; helper binds to `127.0.0.1` only.
+
+⚠️ **Stage B — MUST verify on Windows** (coded + compiles on Linux; the runtime
+path can't be exercised from this Linux dev env):
+- `wsl.exe -e node <server.js>` launches the server (add `-d <distro>` if needed).
+- Server-path resolution: the dev default assumes the project layout; a packaged
+  app must bundle the server and resolve its `/mnt/c` path. Test quickly with
+  the `HELLO_WSL_SERVER_PATH` env var.
+- Loopback: Windows app reaches the WSL2 server at `localhost`.
+- Lifecycle: app quit kills the server (no orphaned `wsl`/`node` process).
+- End-to-end: click "Read directory" → UI lists the WSL `$HOME`.
+- macOS/Linux still run and `readDir` uses local `fs` (WSL module never imported).
 
 ## M5 — CI build matrix
 Build all three platforms in CI.
