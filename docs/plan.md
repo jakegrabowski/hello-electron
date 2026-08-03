@@ -69,21 +69,23 @@ WSL2/Linux host — no Mac needed. `packagerConfig.executableName: 'hello-electr
 root (Vite default root) — setting `root: 'src/renderer'` broke the packaged
 renderer output. Windows `.exe` still requires a Windows host (or CI).
 
-## M4 — WSL2 bridge (Windows-only headline feature)
+## M4 — WSL2 bridge (Windows-only headline feature) ▶
 VS Code-style: Windows Electron UI + helper server inside WSL2 over loopback.
-See ADR-010 / ADR-011 and `docs/architecture.md` §7.
+See ADR-010 / ADR-011 and `docs/architecture.md` §7. Transport: raw TCP +
+newline-delimited JSON-RPC 2.0 (zero extra deps).
 
 Done when:
-- ☐ `src/wsl-server/` exists: a Node server that listens on `127.0.0.1`,
-  answers one RPC (e.g. `listDir(path)` → entries), built as its own Vite
-  target. Runs standalone inside WSL2.
+- ☑ `src/wsl-server/` exists: a Node server that listens on `127.0.0.1`,
+  answers one RPC (`fs.listDir` → `DirListing`), built as its own Vite
+  target. Runs standalone inside WSL2. *(Stage A — built + tested: returns
+  `/home/<user>` over loopback; `wsl-server:start`/`stop` scripts work.)*
 - ☐ `src/main/wsl/` exists (Windows-only, `process.platform === 'win32'`
   guard): spawns the server via `wsl.exe`, connects over localhost, exposes an
-  RPC client.
+  RPC client. *(Stage B — code now, runtime-tested on Windows.)*
 - ☐ End-to-end round-trip on Windows: renderer → preload → main → WSL server
   → back; UI lists the WSL `$HOME` directory.
 - ☐ macOS/Linux builds still start and run (the WSL module is not imported).
-- ☐ `npm run typecheck` clean; helper binds to `127.0.0.1` only.
+- ☑ `npm run typecheck` clean; helper binds to `127.0.0.1` only.
 
 ## M5 — CI build matrix
 Build all three platforms in CI.

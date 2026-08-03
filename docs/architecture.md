@@ -133,16 +133,31 @@ Two processes, communicating over loopback:
   need.
 
 ### Lifecycle
-- Client spawns the server on demand and tracks the child PID.
-- On `before-quit`, the client terminates the server (or the server exits when
-  stdio closes).
-- Server binds an **ephemeral port** and prints it to stdio on startup so the
-  client can connect without port clashes.
+The server is **not a daemon** — it only runs while the app (or your dev test)
+runs, so it holds no RAM when idle.
+
+- **Windows app:** the main process spawns the server on demand, tracks the
+  child PID, and terminates it on `before-quit` (the server also exits if its
+  stdio/parent disappears). Close the app → the server is gone.
+- **Dev (on the WSL2 host):** run it manually — `npm run wsl-server:start`
+  (builds + runs). Stop with `npm run wsl-server:stop` or `Ctrl+C`. It is NOT
+  started by `npm start` (that runs the Linux Electron build, which has no
+  bridge).
+- The server binds an **ephemeral port** on `127.0.0.1`, prints a readiness
+  line to stdout (`{"ready":true,"port":N,"pid":P}`), and writes its PID to
+  `.wsl-server.pid` (used by `wsl-server:stop`; gitignored).
+- **Launching the Windows app from WSL2** works like `code` — Windows interop
+  runs the `.exe` as a Windows process, the GUI appears on the Windows desktop,
+  and the app spawns its own WSL2 helper.
 
 ### Where the code lives
-- `src/wsl-server/` — the helper server (own build target, Node/Linux).
-- `src/main/wsl/` — Windows-only client code (spawn, connect, RPC client).
-- `src/shared/rpc/` — the RPC protocol/types shared by client and server.
+- `src/shared/rpc/protocol.ts` — JSON-RPC 2.0 types + method names.
+- `src/shared/rpc/framing.ts` — newline-delimited framing (`LineBuffer`).
+- `src/wsl-server/index.ts` — the helper server (own Vite build target via
+  `vite.wsl-server.config.ts`; TCP on `127.0.0.1`, `fs.listDir`). Built &
+  tested standalone (M4 Stage A).
+- `src/main/wsl/` — Windows-only client (spawn + RPC client). *(M4 Stage B,
+  not yet built.)*
 
 ## 8. Further reading
 - Electron docs: <https://www.electronjs.org/docs/latest>
