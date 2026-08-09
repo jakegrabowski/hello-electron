@@ -7,3 +7,22 @@ dist/
 .DS_Store
 .eslintcache
 *.tsbuildinfo
+
+# Local environment and signing material.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+
+# OpenCode project-local generated files (keep agents/ and context/ tracked).
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+.opencode/bun.lock
+.opencode/.gitignore

@@ -9,6 +9,37 @@ the user.
 This file is the canonical brief. The files in `docs/` are the reference
 material. When they disagree, **this file wins**; update the doc that's wrong.
 
+## AI collaboration framework
+
+Repository-local AI context lives under `.opencode/` and is loaded through
+`opencode.json`. This file remains the canonical entry point and bundles the
+framework by requiring every agent to use:
+
+- `.opencode/context/README.md` for context priority and maintenance rules.
+- `.opencode/context/workflow.md` for the approval-gated working process.
+- `.opencode/context/issue-register.md` for durable review findings and status.
+- `.opencode/context/session-state.md` for the last verified baseline and
+  current decision boundary.
+- `.opencode/agents/reviewer.md` for read-only repository reviews.
+- `.opencode/agents/issue-planner.md` for read-only, single-issue plans.
+
+**User approval is a hard gate:**
+
+- Work on one registered issue at a time.
+- Investigate first and distinguish facts, assumptions, and platform-only
+  risks.
+- Ask the user before making any unresolved product, compatibility, security,
+  or scope decision. Never choose silently.
+- Propose a small implementation plan and wait for explicit approval before
+  changing application code, configuration, tests, or product documentation.
+- If implementation reveals a material scope change, stop and request approval
+  for the revised plan.
+- Review and update `README.md` whenever approved work changes public behavior,
+  platform support, prerequisites, packaging, security posture, or project
+  status. Do not edit it for changes without public-facing impact.
+- Framework maintenance requested explicitly by the user does not authorize
+  application fixes.
+
 ## Mission
 
 Build **Hello Electron**, a small, correct, secure cross-platform desktop app
@@ -25,11 +56,11 @@ toolchain end to end.
 
 ## Per-OS packaging targets (locked in — see `docs/decisions.md`)
 
-| OS      | Target                    | Maker                              | Build host       |
-| ------- | ------------------------- | ---------------------------------- | ---------------- |
-| Windows | `.exe` (Squirrel)         | `@electron-forge/maker-squirrel`   | Windows          |
-| macOS   | `.app` / `.zip` (unsigned)| `@electron-forge/maker-zip`        | Any host         |
-| Linux   | `.deb`                    | `@electron-forge/maker-deb`        | Any host         |
+| OS      | Target                     | Maker                            | Build host |
+| ------- | -------------------------- | -------------------------------- | ---------- |
+| Windows | `.exe` (Squirrel)          | `@electron-forge/maker-squirrel` | Windows    |
+| macOS   | `.app` / `.zip` (unsigned) | `@electron-forge/maker-zip`      | Any host   |
+| Linux   | `.deb`                     | `@electron-forge/maker-deb`      | Any host   |
 
 macOS `.dmg` + code signing are **deferred** (post-foundation): they require
 macOS (`hdiutil`) + Apple certs. Today we ship an unsigned `.app`/`.zip`;
@@ -48,15 +79,15 @@ behind a `process.platform === 'win32'` guard. Full design:
 
 ## Tech stack (decisions live in `docs/decisions.md`)
 
-| Concern      | Choice                                              |
-| ------------ | --------------------------------------------------- |
-| Runtime      | Electron (Chromium + Node.js)                       |
-| Language     | TypeScript (`strict: true`)                         |
-| Bundler/dev  | Vite, via `@electron-forge/plugin-vite`             |
-| Packaging    | Electron Forge (`forge make`)                       |
-| Package mgr  | npm (switch repo-wide if you ever change it)        |
-| Lint/format  | ESLint + Prettier (added at M2)                     |
-| Tests        | Vitest (added at M2)                                |
+| Concern     | Choice                                       |
+| ----------- | -------------------------------------------- |
+| Runtime     | Electron (Chromium + Node.js)                |
+| Language    | TypeScript (`strict: true`)                  |
+| Bundler/dev | Vite, via `@electron-forge/plugin-vite`      |
+| Packaging   | Electron Forge (`forge make`)                |
+| Package mgr | npm (switch repo-wide if you ever change it) |
+| Lint/format | ESLint + Prettier (added at M2)              |
+| Tests       | Vitest (added at M2)                         |
 
 **Languages Electron supports:** Electron is a JavaScript runtime (Node.js on
 the backend, Chromium on the frontend). Anything that compiles to JavaScript
@@ -129,7 +160,7 @@ electron-hello/
 - **Renderer process** (`src/renderer`): Chromium. Renders the UI. One per
   window. Has **no** Node access.
 - **Preload** (`src/preload`): runs in the renderer with limited Node access
-  *before* the page loads. Its sole job is to expose a safe, minimal API via
+  _before_ the page loads. Its sole job is to expose a safe, minimal API via
   `contextBridge.exposeInMainWorld`.
 - **IPC**: `ipcMain.handle` / `ipcRenderer.invoke` (request/response) and
   `webContents.send` / `ipcRenderer.on` (events). Channel names are constants
@@ -174,14 +205,25 @@ Full step-by-step setup (including the required system libraries):
 ## How to work
 
 1. Read the relevant `docs/` file before touching unfamiliar territory.
-2. For anything beyond a single edit, make a todo list and work it in order.
-3. Implement against `docs/plan.md`; update the plan when reality diverges.
-4. When you finish a task: run the verify triple, fix what breaks, then stop.
-   Don't add features that weren't asked for.
-5. Record any decision that changes the stack in `docs/decisions.md` as a new
-   ADR. Don't silently overturn a prior decision.
-6. Never commit unless the user asks. Never commit secrets. Commit messages
-   are short and imperative.
+2. Select one issue from `.opencode/context/issue-register.md` and investigate
+   it without editing implementation files.
+3. Ask focused clarification questions wherever behavior or scope is not
+   already explicit. Do not assume.
+4. Present a small implementation plan with acceptance criteria, expected
+   files, ordered steps, tests, platform verification, risks, and exclusions.
+5. Wait for explicit user approval. Investigation and planning are never
+   implementation permission.
+6. After approval, make a todo list and implement only the approved scope.
+7. Implement against `docs/plan.md`; update documentation when approved work
+   makes it inaccurate.
+8. Run the verify triple and all issue-specific checks. Never claim one OS was
+   verified by testing another OS.
+9. Update the issue register and session state only when evidence supports the
+   new status.
+10. Record any decision that changes the stack in `docs/decisions.md` as a new
+    ADR. Don't silently overturn a prior decision.
+11. Never commit unless the user asks. Never commit secrets. Commit messages
+    are short and imperative.
 
 ## What "done" means for the foundation (M0–M1)
 
